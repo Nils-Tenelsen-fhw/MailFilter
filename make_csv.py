@@ -95,7 +95,7 @@ def replace_name(text):
     return text
 
 
-def filter_file(file):
+def filter_file(file, all_writer):
     global discard
     with open('output_files/' + file + '.csv', 'w', newline='\n') as csvfile:
         DetectorFactory.seed = 0
@@ -128,7 +128,9 @@ def filter_file(file):
                     if language in accepted_languages:
                         # text = remove_files_in_plaintext(text)
                         included += 1
-                        csvwriter.writerow([text.encode('utf-8', 'surrogateescape').decode('utf-8', 'replace')])
+                        output_row = text.encode('utf-8', 'surrogateescape').decode('utf-8', 'replace')
+                        csvwriter.writerow([output_row])
+                        all_writer.writerow([output_row])
                     else:
                         discarded_languages.append(language)
                 else:
@@ -157,10 +159,12 @@ files = ['phishing0', 'phishing1', 'phishing2', 'phishing3',
          'phishing-2015', 'phishing-2016', 'phishing-2017', 'phishing-2018', 'phishing-2019', 'phishing-2020', 'phishing-2021',
          'private-phishing4']
 
-total_mails = 0
-for file in files:
-    total_mails += filter_file(file)
+with open('all_mails.csv', 'w', newline='\n') as all_file:
+    all_writer = csv.writer(all_file, dialect='excel')
+    total_mails = 0
+    for file in files:
+        total_mails += filter_file(file, all_writer)
 
-print('Total mails remaining: ' + str(total_mails))
+    print('Total mails remaining: ' + str(total_mails))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
