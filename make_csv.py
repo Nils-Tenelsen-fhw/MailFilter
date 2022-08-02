@@ -83,8 +83,8 @@ def remove_files_in_plaintext(text):
     text = re.sub(r'media\:.*', '', text, flags=re.MULTILINE | re.DOTALL)
     text = re.sub(r'0[=x][0-9a-zA-Z]*,? ?', '', text, flags=re.MULTILINE)
     #re.sub(r'0[=x][0-9a-zA-Z]*,? ?.*', '', start, flags=re.MULTILINE | re.DOTALL)
-    if (start != text):
-        print('filtered files')
+    #if (start != text):
+        #print('filtered files')
     return text
 
 def replace_name(text):
@@ -94,58 +94,72 @@ def replace_name(text):
         text = re.sub(variation, replacement, text, flags=re.MULTILINE)
     return text
 
-with open('texts.csv', 'w', newline='\n') as csvfile:
-    DetectorFactory.seed = 0
-    csvwriter = csv.writer(csvfile, dialect='excel')
-    mbox = mailbox.mbox('mbox_edited/private-phishing4.mbox')
-    output = mailbox.mbox('output.mbox', create=True)
-    discarded = 0
-    decode_failed = 0
-    error = 0
-    included = 0
-    accepted_languages = ['ca', 'en', 'uk']
-    discarded_languages = []
 
-    for key in mbox.iterkeys():
-        try:
-            print(key)
-            res = []
-            message = mbox.get_message(key)
-            text = get_text(message)
-            if not discard:
-                text = remove_links(text)
-                text = replace_name(text)
-                #text = filter_non_printable(text)
-                text = remove_files_in_plaintext(text)
-                try:
-                    language = detect(text)
-                except Exception:
-                    print('Can not detect language') #should only occur with messages containing no readable text
-                if language in accepted_languages:
-                    #text = remove_files_in_plaintext(text)
-                    included += 1
-                    csvwriter.writerow([text.encode('utf-8', 'surrogateescape').decode('utf-8', 'replace')])
+def filter_file(file):
+    global discard
+    with open('output_files/' + file + '.csv', 'w', newline='\n') as csvfile:
+        DetectorFactory.seed = 0
+        csvwriter = csv.writer(csvfile, dialect='excel')
+        mbox = mailbox.mbox('mbox_edited/' + file + '.mbox')
+        output = mailbox.mbox('output.mbox', create=True)
+        discarded = 0
+        decode_failed = 0
+        error = 0
+        included = 0
+        accepted_languages = ['ca', 'en', 'uk']
+        discarded_languages = []
+
+        for key in mbox.iterkeys():
+            try:
+                #print(key)
+                res = []
+                message = mbox.get_message(key)
+                text = get_text(message)
+                if not discard:
+                    text = remove_links(text)
+                    text = replace_name(text)
+                    # text = filter_non_printable(text)
+                    text = remove_files_in_plaintext(text)
+                    try:
+                        language = detect(text)
+                    except Exception:
+                        text = text #TODO unnecessary?
+                        #print('Can not detect language')  # should only occur with messages containing no readable text
+                    if language in accepted_languages:
+                        # text = remove_files_in_plaintext(text)
+                        included += 1
+                        csvwriter.writerow([text.encode('utf-8', 'surrogateescape').decode('utf-8', 'replace')])
+                    else:
+                        discarded_languages.append(language)
                 else:
-                    discarded_languages.append(language)
-            else:
-                discarded += 1
-            discard = False
-            mbox.flush()
-        except UnicodeDecodeError:
-            print('Cant decode message: ' + str(key))
-            decode_failed += 1
-        except Exception:
-            print('Unknown error error: '  + str(key))
-            error += 1
+                    discarded += 1
+                discard = False
+                mbox.flush()
+            except UnicodeDecodeError:
+                #print('Cant decode message: ' + str(key))
+                decode_failed += 1
+            except Exception:
+                #print('Unknown error error: ' + str(key))
+                error += 1
+    print('Done ' + file)
+    print('Discarded: ' + str(discarded))
+    print('Failed decoding: ' + str(decode_failed))
+    print('Not English: ' + str(len(discarded_languages)))
+    print('Not English: ' + str(set(discarded_languages)))
+    print('Unknown Error: ' + str(error))
+    print('Included Mails: ' + str(included))
+    print('-----------------------------------------')
+    return included
 
-print('Done')
-print('Discarded: ' + str(discarded))
-print('Failed decoding: ' + str(decode_failed))
-print('Not English: ' + str(len(discarded_languages)))
-print('Not English: ' + str(set(discarded_languages)))
-print('Unknown Error: ' + str(error))
-print('Included Mails: ' + str(included))
-print('-----------------------------------------')
 
+files = ['phishing0', 'phishing1', 'phishing2', 'phishing3',
+         'phishing-2015', 'phishing-2016', 'phishing-2017', 'phishing-2018', 'phishing-2019', 'phishing-2020', 'phishing-2021',
+         'private-phishing4']
+
+total_mails = 0
+for file in files:
+    total_mails += filter_file(file)
+
+print('Total mails remaining: ' + str(total_mails))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
