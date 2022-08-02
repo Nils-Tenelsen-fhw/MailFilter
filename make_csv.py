@@ -102,6 +102,7 @@ def filter_file(file):
         discarded = 0
         decode_failed = 0
         error = 0
+        included = 0
         accepted_languages = ['ca', 'en', 'uk']
         discarded_languages = []
 
@@ -123,6 +124,7 @@ def filter_file(file):
                         #print('Can not detect language') #should only occur with messages containing no readable text
                     if language in accepted_languages:
                         #text = remove_files_in_plaintext(text)
+                        included += 1
                         csvwriter.writerow([text.encode('utf-8', 'surrogateescape').decode('utf-8', 'replace')])
                     else:
                         discarded_languages.append(language)
@@ -144,6 +146,7 @@ def filter_file(file):
     print('Not English: ' + str(len(discarded_languages)))
     print('Not English: ' + str(set(discarded_languages)))
     print('Unknown Error: ' + str(error))
+    print('Included Mails: ' + str(included))
     print('------------------------')
 
 files = ['phishing0', 'phishing1', 'phishing2', 'phishing3',
