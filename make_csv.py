@@ -60,19 +60,35 @@ def get_text(message):
 def remove_links(text):
     clean_link_short = 'its.phishing.fake'
     clean_link = 'https://' + clean_link_short
-    text = re.sub(r'https?:\/\/[^]) ]*', clean_link, text, flags=re.MULTILINE)
+    text = re.sub(r'https?:\/\/[^]) ]*', clean_link_short, text, flags=re.MULTILINE)
     text = re.sub(r'www\.[^])]*', clean_link_short, text, flags=re.MULTILINE)
     # removing new line from link names
     text = re.sub(r'\[(.*)[\n](.*)]', r'\[\1 \2]', text, flags=re.MULTILINE)
+    #removing certain formatting issues found in some (nested) links
+    text = re.sub(r'\\\[', r'[', text, flags=re.MULTILINE)
+    text = re.sub(r'!\[', r'[', text, flags=re.MULTILINE)
+    text = re.sub(r'3D', r'', text, flags=re.MULTILINE)
+    text = re.sub(r'\("', r'(', text, flags=re.MULTILINE)
+    text = re.sub(r'\["', r'[', text, flags=re.MULTILINE)
+    text = re.sub(r'"]', r']', text, flags=re.MULTILINE)
+    text = re.sub(r'"\)', r')', text, flags=re.MULTILINE)
     # reformating links:
-    for i in range(0, 2): # repetition for nested links
-        text = re.sub(r'\[(.*)]\(' + clean_link + '\)', r'LINK[\1]', text, flags=re.MULTILINE)
+    for i in range(0, 4): # repetition for nested links
+        #text = re.sub(r'\[(.*)]\(' + clean_link + '\)', r'LINK[\1]', text, flags=re.MULTILINE)
         text = re.sub(r'\[(.*)]\(' + clean_link_short + '\)', r'LINK[\1]', text, flags=re.MULTILINE)
         #make links that weren't labelled more readable:
-        text = re.sub(r'LINK\[' + clean_link + ']', r'LINK[]', text, flags=re.MULTILINE)
+        #text = re.sub(r'LINK\[' + clean_link + ']', r'LINK[]', text, flags=re.MULTILINE)
         text = re.sub(r'LINK\[' + clean_link_short + ']', r'LINK[]', text, flags=re.MULTILINE)
-    text = re.sub(r'LINKLINK', r'LINK', text, flags=re.MULTILINE)
-    text = re.sub(r'\[]]', r']', text, flags=re.MULTILINE)
+
+    #cleaning up certain formatting articafts that sometimes still remain
+    text = re.sub(r'\(' + clean_link_short + '\)', r'', text, flags=re.MULTILINE)
+    text = re.sub(r'(LINK)+', r'LINK', text, flags=re.MULTILINE)
+    text = re.sub(r'\[+', r'[', text, flags=re.MULTILINE)
+    text = re.sub(r']+', r']', text, flags=re.MULTILINE)
+    text = re.sub(r' +\[] +', r' ', text, flags=re.MULTILINE)
+    text = re.sub(r'(\[])+\[', r'[', text, flags=re.MULTILINE)
+    text = re.sub(r']\[]+', r']', text, flags=re.MULTILINE)
+
     return text
 
 def remove_files_in_plaintext(text):
@@ -82,6 +98,7 @@ def remove_files_in_plaintext(text):
     text = re.sub(r'type\:.*', '', text, flags=re.MULTILINE | re.DOTALL)
     text = re.sub(r'media\:.*', '', text, flags=re.MULTILINE | re.DOTALL)
     text = re.sub(r'0[=x][0-9a-zA-Z]*,? ?', '', text, flags=re.MULTILINE)
+    text = re.sub(r'= ', '', text, flags=re.MULTILINE) #TODO newly added
     #re.sub(r'0[=x][0-9a-zA-Z]*,? ?.*', '', start, flags=re.MULTILINE | re.DOTALL)
     #if (start != text):
         #print('filtered files')
@@ -154,10 +171,11 @@ def filter_file(file, all_writer):
     return included
 
 
-files = ['phishing0', 'phishing1', 'phishing2', 'phishing3',
-         '20051114',
-         'phishing-2015', 'phishing-2016', 'phishing-2017', 'phishing-2018', 'phishing-2019', 'phishing-2020', 'phishing-2021',
-         'private-phishing4']
+files = [#'phishing0', 'phishing1', 'phishing2', 'phishing3',
+         '20051114'#,
+         #'phishing-2015', 'phishing-2016', 'phishing-2017', 'phishing-2018', 'phishing-2019', 'phishing-2020', 'phishing-2021',
+         #'private-phishing4'
+        ]
 
 with open('all_mails.csv', 'w', newline='\n') as all_file:
     all_writer = csv.writer(all_file, dialect='excel')
