@@ -114,10 +114,14 @@ def filter_extra_white_space(text):
     return text
 
 def filter_extra_symbols(text):
+    text = re.sub(r'=[0-9]+', '', text, flags=re.MULTILINE)
     text = re.sub(r'= ', '', text, flags=re.MULTILINE)
     text = re.sub(r'\|', ' ', text, flags=re.MULTILINE)
     text = re.sub(r'-+', ' ', text, flags=re.MULTILINE)
     text = re.sub(r'\*+', ' ', text, flags=re.MULTILINE)
+    text = re.sub(r'\n"', '\n', text, flags=re.MULTILINE)
+    text = re.sub(r'\n_', '\n', text, flags=re.MULTILINE)
+    text = re.sub(r'_\n', '\n', text, flags=re.MULTILINE)
     return text
 
 def replace_name(text):
