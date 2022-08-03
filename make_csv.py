@@ -72,6 +72,10 @@ def remove_links(text):
     text = re.sub(r'\["', r'[', text, flags=re.MULTILINE)
     text = re.sub(r'"]', r']', text, flags=re.MULTILINE)
     text = re.sub(r'"\)', r')', text, flags=re.MULTILINE)
+    text = re.sub(r'\(=\)', r'()', text, flags=re.MULTILINE)
+    text = re.sub(r'\[ +\[', r'[[', text, flags=re.MULTILINE)
+    text = re.sub(r']\(\)', r'](' + clean_link_short + ')', text, flags=re.MULTILINE)
+    text = re.sub(r']\([^)]*\)', r'](' + clean_link_short + ')', text, flags=re.MULTILINE)
     # reformating links:
     for i in range(0, 4): # repetition for nested links
         #text = re.sub(r'\[(.*)]\(' + clean_link + '\)', r'LINK[\1]', text, flags=re.MULTILINE)
@@ -82,6 +86,7 @@ def remove_links(text):
 
     #cleaning up certain formatting articafts that sometimes still remain
     text = re.sub(r'\(' + clean_link_short + '\)', r'', text, flags=re.MULTILINE)
+    text = re.sub(clean_link_short, r'', text, flags=re.MULTILINE)
     text = re.sub(r'(LINK)+', r'LINK', text, flags=re.MULTILINE)
     text = re.sub(r'\[+', r'[', text, flags=re.MULTILINE)
     text = re.sub(r']+', r']', text, flags=re.MULTILINE)
@@ -103,8 +108,9 @@ def remove_files_in_plaintext(text):
         #print('filtered files')
     return text
 
-def filter_extra_spaces(text):
+def filter_extra_white_space(text):
     text = re.sub(r' +', ' ', text, flags=re.MULTILINE)
+    text = re.sub(r'\n+', '\n', text, flags=re.MULTILINE)
     return text
 
 def filter_extra_symbols(text):
@@ -143,12 +149,12 @@ def filter_file(file, all_writer):
                 message = mbox.get_message(key)
                 text = get_text(message)
                 if not discard:
+                    text = filter_extra_symbols(text)
                     text = remove_links(text)
                     text = replace_name(text)
                     # text = filter_non_printable(text)
                     text = remove_files_in_plaintext(text)
-                    text = filter_extra_symbols(text)
-                    text = filter_extra_spaces(text)
+                    text = filter_extra_white_space(text)
                     try:
                         language = detect(text)
                     except Exception:
