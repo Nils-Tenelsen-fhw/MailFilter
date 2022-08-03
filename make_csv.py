@@ -98,10 +98,20 @@ def remove_files_in_plaintext(text):
     text = re.sub(r'type\:.*', '', text, flags=re.MULTILINE | re.DOTALL)
     text = re.sub(r'media\:.*', '', text, flags=re.MULTILINE | re.DOTALL)
     text = re.sub(r'0[=x][0-9a-zA-Z]*,? ?', '', text, flags=re.MULTILINE)
-    text = re.sub(r'= ', '', text, flags=re.MULTILINE) #TODO newly added
     #re.sub(r'0[=x][0-9a-zA-Z]*,? ?.*', '', start, flags=re.MULTILINE | re.DOTALL)
     #if (start != text):
         #print('filtered files')
+    return text
+
+def filter_extra_spaces(text):
+    text = re.sub(r' +', ' ', text, flags=re.MULTILINE)
+    return text
+
+def filter_extra_symbols(text):
+    text = re.sub(r'= ', '', text, flags=re.MULTILINE)
+    text = re.sub(r'\|', ' ', text, flags=re.MULTILINE)
+    text = re.sub(r'-+', ' ', text, flags=re.MULTILINE)
+    text = re.sub(r'\*+', ' ', text, flags=re.MULTILINE)
     return text
 
 def replace_name(text):
@@ -137,6 +147,8 @@ def filter_file(file, all_writer):
                     text = replace_name(text)
                     # text = filter_non_printable(text)
                     text = remove_files_in_plaintext(text)
+                    text = filter_extra_symbols(text)
+                    text = filter_extra_spaces(text)
                     try:
                         language = detect(text)
                     except Exception:
@@ -171,10 +183,11 @@ def filter_file(file, all_writer):
     return included
 
 
-files = [#'phishing0', 'phishing1', 'phishing2', 'phishing3',
-         '20051114'#,
-         #'phishing-2015', 'phishing-2016', 'phishing-2017', 'phishing-2018', 'phishing-2019', 'phishing-2020', 'phishing-2021',
-         #'private-phishing4'
+files = [
+         'phishing0', 'phishing1', 'phishing2', 'phishing3',
+         '20051114',
+         'phishing-2015', 'phishing-2016', 'phishing-2017', 'phishing-2018', 'phishing-2019', 'phishing-2020', 'phishing-2021',
+         'private-phishing4'
         ]
 
 with open('all_mails.csv', 'w', newline='\n') as all_file:
