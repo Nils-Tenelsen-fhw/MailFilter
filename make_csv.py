@@ -116,6 +116,9 @@ def filter_extra_white_space(text):
 def filter_extra_symbols(text):
     text = re.sub(r'=[0-9]+', '', text, flags=re.MULTILINE)
     text = re.sub(r'= ', '', text, flags=re.MULTILINE)
+    text = re.sub(r' =', '', text, flags=re.MULTILINE)
+    text = re.sub(r'\n=', '\n', text, flags=re.MULTILINE)
+    text = re.sub(r'=\n', '\n', text, flags=re.MULTILINE)
     text = re.sub(r'\|', ' ', text, flags=re.MULTILINE)
     text = re.sub(r'-+', ' ', text, flags=re.MULTILINE)
     text = re.sub(r'\*+', ' ', text, flags=re.MULTILINE)
@@ -159,6 +162,7 @@ def filter_file(file, all_writer):
                     # text = filter_non_printable(text)
                     text = remove_files_in_plaintext(text)
                     text = filter_extra_white_space(text)
+                    text = filter_extra_symbols(text)
                     try:
                         language = detect(text)
                     except Exception:
