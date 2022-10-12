@@ -7,11 +7,6 @@ import unicodedata
 from langdetect import detect, DetectorFactory
 
 
-
-# This is a sample Python script.
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
 discard = False
 
 printable = {'Lu', 'Ll', 'Zs', 'Zl', 'Nd', 'Cf', 'Zp', 'Cc', 'Po'}
@@ -211,5 +206,3 @@ with open('all_mails.csv', 'w', newline='\n') as all_file:
         total_mails += filter_file(file, all_writer)
 
     print('Total mails remaining: ' + str(total_mails))
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
