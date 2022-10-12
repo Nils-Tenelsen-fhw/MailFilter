@@ -1,4 +1,4 @@
-Program used to clean up the data of the Nazario Phishing Corpus (https://monkey.org/~jose/phishing/) in order for use in training neural networks.
+Program used to clean up the data of the Nazario Phishing Corpus (https://monkey.org/~jose/phishing/) for use in training neural networks.
 
 The original data from the corpus can be found in the mbox_originals folder.
 A slightly altered version of the data that is used by this program, as a handful of emails with encoding issues were removed, can be found in the mbox_edited folder.
