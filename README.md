@@ -8,5 +8,5 @@ A concatenated version of the entirety of the cleaned up data can be found in th
 The script make_csv.py reads the HTML payload from the emails and converts the HTML to plaintext.
 It also removes links and replaces them with placeholders. Both to protect from malware as well as to make the training process easier.
 Other filtering steps include formatting as well as removal of as much non-natural language left after the plaintext conversion as possible.
-The script saves the cleaned up data as a csv after processing each .mbox file. After the last step a concatenated version is created.
+The script saves the cleaned up data as a .csv after processing each .mbox file. After the last .mbox file is processed a concatenated .csv file of all emails is created.
 
